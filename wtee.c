@@ -19,24 +19,24 @@
 /* 返回码定义 */
 enum{ SUCCESS, ARGS_ERROR, HANDLE_ERROR } EXITCODE;
 /* 错误信息与帮助信息 */
-char ARG_ERROR_INFO[] =
+static const char ARG_ERROR_INFO[] =
 "ERROR! Couldn't recognize argument %s, please use option \"--help\" for instructions\n";
-char HELP_INFO[] =
+static const char HELP_INFO[] =
 "The program can print the standard output to both the console and a specified file, \"-a\" option append the standard output to the specified file, as follows: \n"
 "<command> | wtee [-a] <outputfile>\n";
 
 /* 全局参数 */
-struct mode{
+static struct mode{
     bool if_append;
 } mode = { false };
-char *file_path = NULL;
-char OUTPUT_FILE_BUFFER[BUFFER_SIZE];
+static char *file_path = NULL;
+static char OUTPUT_FILE_BUFFER[BUFFER_SIZE];
 
 /* 读取参数并根据参数修改全局参数, 若解析成功则返回true, 否则false */
-void analyze_arguments(int argc, char **argv);
+static void analyze_arguments(int argc, char **argv);
 
 /* 根据全局参数进行流处理 */
-void handle(void);
+static void handle(void);
 
 /* 主函数 */
 int main(int argc, char *argv[]){
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
 
 
 /* 读取参数并根据参数修改全局参数, 若解析成功则返回true, 否则false */
-void analyze_arguments(int argc, char **argv){
+static void analyze_arguments(int argc, char **argv){
     // 对参数遍历处理
     for (int i = 1;i < argc;i++){
         char *p = argv[i];
@@ -86,7 +86,7 @@ void analyze_arguments(int argc, char **argv){
 }
 
 /* 根据全局参数进行流处理 */
-void handle(void){
+static void handle(void){
     FILE *fout;
 
     // 设置标准输入输出为二进制模式
@@ -106,6 +106,8 @@ void handle(void){
     // 为输出文件设置缓冲区
     if (setvbuf(fout, OUTPUT_FILE_BUFFER, _IOFBF, BUFFER_SIZE)){
         fprintf(stderr, "ERROR! Couldn't set buffer for file %s", file_path);
+        fclose(stdin);
+        fclose(fout);
         exit(EXITCODE = HANDLE_ERROR);
     }
 
